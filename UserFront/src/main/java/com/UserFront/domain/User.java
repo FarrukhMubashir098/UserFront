@@ -2,19 +2,42 @@ package com.UserFront.domain;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Entity
 public class User {
 
+@Id
+@GeneratedValue(strategy = GenerationType.AUTO)
+@Column(name="userId" , nullable = false , updatable = false)
 	private Long userId;
 	private String userName;
 	private String password;
 	private String firstName;
 	private String lastName;
+	
+@Column(name="email" , nullable = false , unique = true)
 	private String email;
 	private String phone;
 	
+@OneToOne	
 	private PrimaryAccount primaryaccount;
+@OneToOne
 	private SavingsAccount savingaccount;
+@OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+@JsonIgnore
 	private List<Appointment> appointmentList;
+@OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , fetch = FetchType.LAZY)
 	private List<Recipient> recipientList;
 	public long getUserId() {
 		return userId;
@@ -82,11 +105,8 @@ public class User {
 	public void setRecipientList(List<Recipient> recipientList) {
 		this.recipientList = recipientList;
 	}
-	@Override
-	public String toString() {
-		return "User [userId=" + userId + ", userName=" + userName + ", password=" + password + ", firstName="
-				+ firstName + ", lastName=" + lastName + ", email=" + email + ", phone=" + phone + "]";
-	}
+	
+
 	
 	
 }
