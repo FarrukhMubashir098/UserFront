@@ -1,6 +1,9 @@
 package com.UserFront.domain;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,14 +15,19 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.UserFront.domain.security.Authority;
+import com.UserFront.domain.security.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class User {
+public class User implements UserDetails {
 
 @Id
 @GeneratedValue(strategy = GenerationType.AUTO)
-@Column(name="userId" , nullable = false , updatable = false)
+@Column(name="user_id" , nullable = false , updatable = false)
 	private Long userId;
 	private String userName;
 	private String password;
@@ -30,6 +38,8 @@ public class User {
 	private String email;
 	private String phone;
 	
+	private boolean enabled=true;
+	
 @OneToOne	
 	private PrimaryAccount primaryaccount;
 @OneToOne
@@ -39,7 +49,20 @@ public class User {
 	private List<Appointment> appointmentList;
 @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , fetch = FetchType.LAZY)
 	private List<Recipient> recipientList;
-	public long getUserId() {
+
+@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+@JsonIgnore
+private Set<UserRole> userRoles = new HashSet<>();
+
+public Set<UserRole> getUserRoles() {
+    return userRoles;
+}
+
+public void setUserRoles(Set<UserRole> userRoles) {
+    this.userRoles = userRoles;
+}
+
+	public Long getUserId() {
 		return userId;
 	}
 	public void setUserId(long userId) {
@@ -105,6 +128,39 @@ public class User {
 	public void setRecipientList(List<Recipient> recipientList) {
 		this.recipientList = recipientList;
 	}
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		Set<GrantedAuthority> authorities = new HashSet<>();
+        userRoles.forEach(ur -> authorities.add(new Authority(ur.getRole().getName())));
+        return authorities;
+	}
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public boolean isAccountNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	@Override
+	public boolean isAccountNonLocked() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	@Override
+	public boolean isCredentialsNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	@Override
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return enabled;
+	}
+	
+	
 	
 
 	
